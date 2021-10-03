@@ -1,9 +1,12 @@
-#include <iostream>
 #include <map>
+#include <sstream>
+#include <iostream>
 
 #include <windows.h>
 
 #include "teststatusprint.hpp"
+
+const size_t command_size = 64;
 
 // CLIENT
 int main()
@@ -25,11 +28,11 @@ int main()
 
     // п. 2
     DWORD numberOfBytes;
-    std::string command {64, '\0'};
+    std::string command (64, '\0');
     while (true)  // п. 5
     {
         std::cout << "> ";
-        std::cin >> command;
+        std::getline(std::cin >> std::ws, command);
         test_status_print(WriteFile(h_pipe, command.c_str(), command.size(), &numberOfBytes, nullptr),
                           "occurred while writing to pipe",
                           pipe_name);
@@ -44,11 +47,11 @@ int main()
         }
         else
         {
-            std::string response {};
+            std::string response (64, '\0');
             test_status_print(ReadFile(h_pipe, &response[0], response.size(), &numberOfBytes, nullptr),
                               "occurred while reading response",
                               response, response, '\n');
         }
-        command.clear();
+        command.replace(0, command.size(), command.size(), '\0');
     }
 }
